@@ -1,7 +1,7 @@
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
-let scale = 1;
+let scale = 2;
 
 canvas.width = canvas.offsetWidth*scale;
 canvas.height = canvas.offsetHeight*scale;
@@ -21,7 +21,7 @@ function setup() {
   planets[2] = new Planet(200, 0, 15, 0.01, planets[1]);
   planets[3] = new Planet(40, 0, 5, 0.02, planets[2]);
   planets[4] = new Planet(350, 0, 25, 0.005, planets[1]);
-  planets[5] = new Planet(75, 0, 5, 0.02, planets[4])
+
 }
 
 
@@ -47,29 +47,26 @@ function toggleFullscreen() {
   fullscreen = !fullscreen;
 }
 
+function canvasRefresh() {
+  canvas.width = canvas.offsetWidth*scale;
+  canvas.height = canvas.offsetHeight*scale;
+  ctx.translate(canvas.width/2, canvas.height/2);
+}
+
 setup();
 draw();
 
 canvas.addEventListener("dblclick", e => toggleFullscreen())
 
-document.addEventListener("fullscreenchange", () => {
-  canvas.width = canvas.offsetWidth*scale;
-  canvas.height = canvas.offsetHeight*scale;
-  ctx.translate(canvas.width/2, canvas.height/2);
-})
+document.addEventListener("fullscreenchange", canvasRefresh);
 
 document.addEventListener("keydown", e => {
   if (e.key == "+" && scale > 1) {
     scale -= 0.05;
-    canvas.width = canvas.offsetWidth*scale;
-    canvas.height = canvas.offsetHeight*scale;
-    ctx.translate(canvas.width/2, canvas.height/2);
+    canvasRefresh();
   } else if (e.key == "-" && scale <= 10) {
     scale += 0.05;
-
-    canvas.width = canvas.offsetWidth*scale;
-    canvas.height = canvas.offsetHeight*scale;
-    ctx.translate(canvas.width/2, canvas.height/2);
+    canvasRefresh();
   } else if (e.key == " ") {
     playing = !playing;
   } else if (e.key == "o") {
