@@ -1,21 +1,18 @@
 class Planet {
-  constructor(radius, angle, size, speed, parent) {
-    this.r = radius;
+  constructor(distance, angle, size, speed, parent) {
+    this.dist = distance;
     this.a = angle;
     this.size = size;
     this.speed = speed;
+    this.parent = parent;
+    this.children = [];
 
-
-    if (parent) {
-      this.parent = parent;
-      this.sun = false;
-    } else {
-      this.parent = {x: 0, y: 0};
-      this.sun = true;
+    if (this.parent) {
+      this.parent.children.push(this)
     }
 
-    this.x = this.parent.x + this.r * Math.cos(this.a);
-    this.y = this.parent.y + this.r * Math.sin(this.a);
+    this.x = this.parent.x + this.dist * Math.cos(this.a);
+    this.y = this.parent.y + this.dist * Math.sin(this.a);
   }
 
   draw() {
@@ -27,23 +24,64 @@ class Planet {
     ctx.fill();
     ctx.closePath();
 
-    if (!this.sun && orbits) {
-      this.parent.drawOrbit(this.r);
+    if (this.children) {
+      for (var i = 0; i < this.children.length; i++) {
+        this.drawOrbit(this.children[i].dist);
+      }
     }
   }
 
   update() {
-    this.x = this.parent.x + this.r * Math.cos(this.a);
-    this.y = this.parent.y + this.r * Math.sin(this.a);
+    this.x = this.parent.x + this.dist * Math.cos(this.a);
+    this.y = this.parent.y + this.dist * Math.sin(this.a);
     this.a += this.speed;
 
   }
 
-  drawOrbit(r) {
+
+  drawOrbit(dist) {
     ctx.strokeStyle = "white";
 
     ctx.beginPath();
-    ctx.arc(this.x, this.y, r, 0, Math.PI*2);
+    ctx.arc(this.x, this.y, dist, 0, Math.PI*2);
+    ctx.stroke();
+    ctx.closePath();
+  }
+}
+
+
+class Sun {
+  constructor(x, y, size) {
+    this.x = x;
+    this.y = y;
+    this.size = size;
+    this.children = [];
+  }
+
+  draw() {
+    ctx.strokeStyle = "white";
+    ctx.fillStyle = "white";
+
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size, 0, Math.PI*2);
+    ctx.fill();
+    ctx.closePath();
+
+    if (this.children) {
+      for (var i = 0; i < this.children.length; i++) {
+        this.drawOrbit(this.children[i].dist);
+      }
+    }
+  }
+
+  update() {
+  }
+
+  drawOrbit(dist) {
+    ctx.strokeStyle = "white";
+
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, dist, 0, Math.PI*2);
     ctx.stroke();
     ctx.closePath();
   }
