@@ -1,0 +1,28 @@
+#mainContainer {
+  width: 98vw;
+  height: 98vh;
+  display: grid;
+  place-items: center;
+}
+
+#grid {
+  display: grid;
+  place-items: center;
+  grid-auto-flow: column;
+  grid-template-columns: repeat(1, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+}
+
+#canvas {
+  background-color: black;
+  outline: solid black;
+  width: 90vmin;
+  height: 90vmin;
+  grid-row-start: 1;
+  grid-row-end: 3;
+}
+
+.button {
+  width: 20vmin;
+  height: 20vmin;
+}
