@@ -6,6 +6,7 @@ class Planet {
     this.speed = speed;
     this.parent = parent;
     this.children = [];
+    this.color = "white";
 
     if (this.parent) {
       this.parent.children.push(this)
@@ -17,14 +18,14 @@ class Planet {
 
   draw() {
     ctx.strokeStyle = "white";
-    ctx.fillStyle = "white";
+    ctx.fillStyle = this.color;
 
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.size, 0, Math.PI*2);
     ctx.fill();
     ctx.closePath();
 
-    if (this.children) {
+    if (this.children && orbits) {
       for (var i = 0; i < this.children.length; i++) {
         this.drawOrbit(this.children[i].dist);
       }
@@ -56,18 +57,20 @@ class Sun {
     this.y = y;
     this.size = size;
     this.children = [];
+    this.color = "white";
+
   }
 
   draw() {
     ctx.strokeStyle = "white";
-    ctx.fillStyle = "white";
+    ctx.fillStyle = this.color;
 
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.size, 0, Math.PI*2);
     ctx.fill();
     ctx.closePath();
 
-    if (this.children) {
+    if (this.children && orbits) {
       for (var i = 0; i < this.children.length; i++) {
         this.drawOrbit(this.children[i].dist);
       }
@@ -79,7 +82,6 @@ class Sun {
 
   drawOrbit(dist) {
     ctx.strokeStyle = "white";
-
     ctx.beginPath();
     ctx.arc(this.x, this.y, dist, 0, Math.PI*2);
     ctx.stroke();

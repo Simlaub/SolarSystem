@@ -6,15 +6,20 @@ ctx.strokeStyle = "white";
 let scale = 2;
 let planets = [];
 let orbits = true;
-let playing = true;
+let playing = false;
 let fullscreen = false;
 let mousedown = false;
 let prevX, prevY;
+
 canvas.width = canvas.offsetWidth*scale;
 canvas.height = canvas.offsetHeight*scale;
 
+let translateX = canvas.width/2;
+let translateY = canvas.height/2;
+
+
 function setup() {
-  ctx.translate(canvas.width/2, canvas.height/2);
+  ctx.translate(translateX, translateY);
   planets[0] = new Sun(0, 0, 200);
   planets[1] = new Planet(1000, 0, 100, 0.002, planets[0]);
   planets[2] = new Planet(300, 0, 25, 0.01, planets[1]);
@@ -26,7 +31,8 @@ function setup() {
 
 
 function draw() {
-  ctx.clearRect(-canvas.width/2, -canvas.height/2, canvas.width, canvas.height);
+  ctx.clearRect(-translateX, -translateY, canvas.width, canvas.height);
+
 
   for (var i = 0; i < planets.length; i++) {
     if (playing) {
@@ -50,7 +56,7 @@ function toggleFullscreen() {
 function canvasRefresh() {
   canvas.width = canvas.offsetWidth*scale;
   canvas.height = canvas.offsetHeight*scale;
-  ctx.translate(canvas.width/2, canvas.height/2);
+  ctx.translate(translateX, translateY);
 }
 
 
@@ -72,8 +78,10 @@ function drag(e) {
     let dx = prevX - (e.offsetX * scale);
     let dy = prevY - (e.offsetY * scale);
 
-    planets[0].x -= dx;
-    planets[0].y -= dy;
+    ctx.translate(-dx, -dy)
+
+    translateX += -dx;
+    translateY += -dy;
 
     prevX = e.offsetX * scale;
     prevY = e.offsetY * scale;
@@ -83,16 +91,51 @@ function drag(e) {
 setup();
 draw();
 
-canvas.addEventListener("dblclick", toggleFullscreen)
-canvas.addEventListener("mousemove", e => drag(e))
+canvas.addEventListener("click", e => {
+  let mouseX = e.offsetX * scale - translateX;
+  let mouseY = e.offsetY * scale - translateY;
+  let planetX, planetY, planetSize;
+
+  for (var i = 0; i < planets.length; i++) {
+    planets[i].color = "white";
+  }
+
+  for (var i = 0; i < planets.length; i++) {
+    planetX = planets[i].x;
+    planetY = planets[i].y;
+    planetSize = planets[i].size;
+
+
+
+    if (mouseX > planetX - planetSize && mouseX < planetX + planetSize && mouseY > planetY - planetSize && mouseY < planetY + planetSize) {
+      planets[i].color = "red";
+      for (var j = 0; j < planets[i].children.length; j++) {
+        planets[i].children[j].color = "blue"
+        for (var k = 0; k < planets[i].children[j].children.length; k++) {
+          planets[i].children[j].children[k].color = "yellow"
+        }
+      }
+    }
+  }
+})
+
+canvas.addEventListener("mousemove", e => drag(e));
 
 canvas.addEventListener("mousedown", e => {
-  mousedown = true;
-  prevX = e.offsetX * scale;
-  prevY = e.offsetY * scale;
+  if (e.button == 1) {
+    mousedown = true;
+    prevX = e.offsetX * scale;
+    prevY = e.offsetY * scale;
+    document.getElementById("canvas").style.cursor = "grab";
+  }
 });
 
-document.addEventListener("mouseup", () => mousedown = false);
+document.addEventListener("mouseup", () => {
+  mousedown = false;
+  document.getElementById("canvas").style.cursor = "default";
+});
+
+canvas.addEventListener("dblclick", toggleFullscreen)
 document.addEventListener("fullscreenchange", canvasRefresh);
 window.addEventListener("resize", canvasRefresh);
 
@@ -102,9 +145,7 @@ document.addEventListener("keydown", e => {
   } else if (e.key == "o") {
     orbits = !orbits;
   }
-})
-
-
+});
 
 canvas.addEventListener("wheel", e => {
   if (e.deltaY < 0 && scale > 0.5) {
@@ -114,4 +155,9 @@ canvas.addEventListener("wheel", e => {
     scale += 0.2;
     canvasRefresh();
   }
-})
+
+  if (mousedown) {
+    prevX = e.offsetX * scale;
+    prevY = e.offsetY * scale;
+  }
+});
