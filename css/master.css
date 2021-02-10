@@ -1,26 +1,19 @@
 #mainContainer {
-  width: 98vw;
+  width: 99vw;
   height: 98vh;
   display: grid;
   place-items: center;
-}
-
-#grid {
-  display: grid;
-  place-items: center;
-  grid-auto-flow: column;
-  grid-template-columns: repeat(1, 1fr);
-  grid-template-rows: repeat(2, 1fr);
+  margin: 0;
+  padding: 0;
 }
 
 #canvas {
   background-color: black;
   outline: solid black;
-  width: 90vw;
-  height: 90vh;
-  grid-row-start: 1;
-  grid-row-end: 3;
+  width: 95vw;
+  height: 95vh;
 }
+
 
 .button {
   width: 20vmin;

@@ -1,12 +1,13 @@
 class Planet {
   constructor(distance, angle, size, speed, parent) {
-    this.dist = distance;
     this.a = angle;
+    this.dist = distance;
     this.size = size;
     this.speed = speed;
     this.parent = parent;
     this.children = [];
-    this.color = "white";
+    this.fillColor = "white";
+    this.strokeColor = "white";
 
     if (this.parent) {
       this.parent.children.push(this)
@@ -17,13 +18,16 @@ class Planet {
   }
 
   draw() {
-    ctx.strokeStyle = "white";
-    ctx.fillStyle = this.color;
+    ctx.strokeStyle = this.strokeColor;
+    ctx.fillStyle = this.fillColor;
 
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.size, 0, Math.PI*2);
     ctx.fill();
+    //ctx.stroke();
     ctx.closePath();
+
+    ctx.lineWidth = 2 * scale;
 
     if (this.children && orbits) {
       for (var i = 0; i < this.children.length; i++) {
@@ -41,7 +45,7 @@ class Planet {
 
 
   drawOrbit(dist) {
-    ctx.strokeStyle = "white";
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.1)";
 
     ctx.beginPath();
     ctx.arc(this.x, this.y, dist, 0, Math.PI*2);
@@ -57,18 +61,22 @@ class Sun {
     this.y = y;
     this.size = size;
     this.children = [];
-    this.color = "white";
+    this.fillColor = "white";
+    this.strokeColor = "white";
 
   }
 
   draw() {
-    ctx.strokeStyle = "white";
-    ctx.fillStyle = this.color;
+    ctx.strokeStyle = this.strokeColor;
+    ctx.fillStyle = this.fillColor;
 
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.size, 0, Math.PI*2);
     ctx.fill();
+    //ctx.stroke();
     ctx.closePath();
+
+    ctx.lineWidth = 2 * scale;
 
     if (this.children && orbits) {
       for (var i = 0; i < this.children.length; i++) {
@@ -81,7 +89,8 @@ class Sun {
   }
 
   drawOrbit(dist) {
-    ctx.strokeStyle = "white";
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.1)";
+
     ctx.beginPath();
     ctx.arc(this.x, this.y, dist, 0, Math.PI*2);
     ctx.stroke();
