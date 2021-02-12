@@ -18,10 +18,10 @@ function draw() {
       planets[i].update(playing);
       planets[i].drawOrbits();
     }
+    sun.update(playing);
+    sun.drawOrbits()
   }
 
-  sun.update(playing);
-  sun.drawOrbits()
 
   for (var i = 0; i < planets.length; i++) {
     planets[i].draw();
