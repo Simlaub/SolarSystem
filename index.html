@@ -13,11 +13,24 @@
   </head>
   <body id="body">
     <div class="menu" id="toolbar">
-      <button class="button" id="fullscreen"></button>
-      <button class="button" id="play"></button>
-      <button class="button" id="orbits"></button>
+      <button class="button" id="fullscreen"><abbr title="Toggle Fullscreen" class="tooltip"></abbr></button>
+      <button class="button" id="play"><abbr title="Play/Pause" class="tooltip"></abbr></button>
+      <button class="button" id="orbits"><abbr title="Toggle Orbits" class="tooltip"></abbr></button>
+        <button class="button" id="move"><abbr title="Move Planet" class="tooltip"></abbr></button>
     </div>
-    <div class="menu" id="planetOptions"></div>
+    <div class="menu" id="planetOptions">
+      <h2 class="planetOptionsInner heading">Information</h2>
+      <p class="planetOptionsInner" id="poInner1"></p>
+      <p class="planetOptionsInner" id="poInner2"></p>
+      <p class="planetOptionsInner" id="poInner3"></p>
+      <p class="planetOptionsInner" id="poInner4"></p>
+
+      <h2 class="planetOptionsInner heading" >Options</h2>
+      <input class="textInput" id="nameInput" type="text">
+      <input class="textInput" id="sizeInput" type="number" min="1">
+      <button class="button" id="pickCoords">Pick a location</button>
+
+    </div>
     <canvas id="canvas"></canvas>
   </body>
 </html>

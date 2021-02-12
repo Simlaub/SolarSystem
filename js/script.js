@@ -8,10 +8,15 @@ let scale = 2;
 let planets = [];
 let orbits = true;
 let playing = false;
+let prevPlaying;
 let fullscreen = false;
 let mousedown = false;
+let movedown = false;
+let moving = false;
 let prevX, prevY;
 let selection;
+let moveSelection;
+
 
 canvas.width = canvas.offsetWidth*scale;
 canvas.height = canvas.offsetHeight*scale;
@@ -67,6 +72,20 @@ function drag(e) {
 
     prevX = e.offsetX * scale;
     prevY = e.offsetY * scale;
+  } else if (movedown) {
+    let dx = prevX - (e.offsetX * scale);
+    let dy = prevY - (e.offsetY * scale);
+
+    let x = moveSelection.x
+    let y = moveSelection.y
+
+    x += -dx;
+    y += -dy;
+
+    moveSelection.calcPolarCoords(x, y)
+
+    prevX = e.offsetX * scale;
+    prevY = e.offsetY * scale;
   }
 }
 
@@ -81,15 +100,25 @@ function mouseOnPlanet(e) {
     planetY = planets[i].y;
     planetSize = planets[i].size;
 
-    if (mouseX > planetX - planetSize && mouseX < planetX + planetSize && mouseY > planetY - planetSize && mouseY < planetY + planetSize && planets[i].fillColor != "grey") {
+    if (mouseX > planetX - planetSize && mouseX < planetX + planetSize && mouseY > planetY - planetSize && mouseY < planetY + planetSize && !planets[i].selected) {
       return i;
     }
+  }
+
+  if (mouseX > sun.x - sun.size && mouseX < sun.x + sun.size && mouseY > sun.y - sun.size && mouseY < sun.y + sun.size && !sun.selected) {
+    return "sun";
   }
   return undefined;
 }
 
+function valBelowMin(e) {
+  if (e.target.valueAsNumber < e.target.min) {
+    e.target.valueAsNumber = e.target.min;
+  }
+}
+
 //activates toggleFullscreen on double click on canvas
-canvas.addEventListener("dblclick", toggleFullscreen);
+//canvas.addEventListener("dblclick", toggleFullscreen);
 //refreshes the canvas on fullscreenchange
 document.addEventListener("fullscreenchange", canvasRefresh);
 //refreshes the canvas on window resize
@@ -107,16 +136,36 @@ canvas.addEventListener("click", e => {
     }
   }
 
-  //new planet gets selected
-  if (index + 1) {
-    planets[index].fillColor = "grey";
-    planets[index].selected = true;
+  if (sun.selected) {
+    sun.fillColor = "#f6ff8b";
+    sun.selected = false;
   }
-  selection = index;
+
+  //new planet gets selected
+  if (!moving) {
+    if (index >= 0) {
+      planets[index].fillColor = "grey";
+      planets[index].selected = true;
+      selection = planets[index];
+      initInputVals();
+    } else if (index == "sun") {
+      sun.fillColor = "#66602a";
+      sun.selected = true;
+      selection = sun;
+      initInputVals();
+    } else {
+      selection = undefined;
+    }
+  } else {
+    moving = false;
+    playing = prevPlaying;
+    document.getElementById("toolbar").style.display = "grid";
+    body.style.cursor = "default";
+  }
 })
 
 //Activates drag function and checks if mouse position is inside of a planet => if so it makes it planet another color
-document.addEventListener("mousemove", e => {
+canvas.addEventListener("mousemove", e => {
    drag(e);
    let index = mouseOnPlanet(e);
 
@@ -126,10 +175,17 @@ document.addEventListener("mousemove", e => {
      }
    }
 
-   if (index + 1) {
-     planets[index].fillColor = "lightgrey";
+   if (!sun.selected) {
+     sun.fillColor = "#f6ff8b";
    }
 
+
+
+   if (index != undefined && index != "sun") {
+     planets[index].fillColor = "lightgrey";
+   } else if (index == "sun") {
+     sun.fillColor = "#b3ac5c";
+   }
 
  });
 
@@ -140,28 +196,51 @@ document.addEventListener("mousedown", e => {
     prevX = e.offsetX * scale;
     prevY = e.offsetY * scale;
     body.style.cursor = "grab";
+  } else if (e.button == 0 && moving) {
+    let index = mouseOnPlanet(e);
+
+    if (index + 1) {
+      movedown = true;
+      prevX = e.offsetX * scale;
+      prevY = e.offsetY * scale;
+      moveSelection = planets[index];
+    }
   }
 });
 
 //sets mousedown variable to false and resets the cursor style
 document.addEventListener("mouseup", () => {
   mousedown = false;
-  body.style.cursor = "default";
+  movedown = false;
+  if (moving) {
+    body.style.cursor = "move";
+  } else {
+    body.style.cursor = "default";
+  }
 });
 
 //toggles animation and orbits
 document.addEventListener("keyup", e => {
   switch (e.key) {
     case " ":
-      if (playing) {
+      if (playing && !moving) {
         document.getElementById("play").style.backgroundImage = "url(./textures/play.png)";
-      } else {
+        playing = false;
+      } else if(!moving) {
         document.getElementById("play").style.backgroundImage = "url(./textures/pause.png)";
+        playing = true;
       }
-      playing = !playing;
       break;
     case "o":
       orbits = !orbits;
+      break;
+    case "m":
+      selection = undefined;
+      moving = true;
+      prevPlaying = playing;
+      playing = false;
+      document.getElementById("toolbar").style.display = "none";
+      body.style.cursor = "move";
       break;
     default:
       break;
@@ -174,7 +253,7 @@ canvas.addEventListener("wheel", e => {
   if (e.deltaY < 0 && canvas.width > canvas.offsetWidth && !e.ctrlKey) {
     scale -= 0.2;
     canvasRefresh();
-  } else if (e.deltaY > 0 && canvas.width < canvas.offsetWidth*4 && !e.ctrlKey) {
+  } else if (e.deltaY > 0 && canvas.width < canvas.offsetWidth*6 && !e.ctrlKey) {
     scale += 0.2;
     canvasRefresh();
   }
@@ -185,6 +264,11 @@ canvas.addEventListener("wheel", e => {
     prevY = e.offsetY * scale;
   }
 });
+
+body.addEventListener("mouseleave", () => {
+  mousedown = false;
+  movedown = false;
+})
 
 //toolbar buttons
 document.getElementById("fullscreen").addEventListener("click", toggleFullscreen);
@@ -197,3 +281,18 @@ document.getElementById("play").addEventListener("click", () => {
   playing = !playing
 })
 document.getElementById("orbits").addEventListener("click", () => orbits = !orbits);
+document.getElementById("move").addEventListener("click", () => {
+  selection = undefined;
+  moving = true;
+  prevPlaying = playing;
+  playing = false;
+  document.getElementById("toolbar").style.display = "none";
+  body.style.cursor = "move";
+});
+
+//planet Options Inputs
+document.getElementById("nameInput").addEventListener("change", () => selection.name = document.getElementById("nameInput").value)
+document.getElementById("sizeInput").addEventListener("change", e => {
+  valBelowMin(e);
+  selection.size = document.getElementById("sizeInput").value;
+})
