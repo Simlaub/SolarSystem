@@ -154,9 +154,9 @@ document.addEventListener("keyup", e => {
   switch (e.key) {
     case " ":
       if (playing) {
-        document.getElementById("play").style.backgroundImage = "url(../textures/play.png)";
+        document.getElementById("play").style.backgroundImage = "url(./textures/play.png)";
       } else {
-        document.getElementById("play").style.backgroundImage = "url(../textures/pause.png)";
+        document.getElementById("play").style.backgroundImage = "url(./textures/pause.png)";
       }
       playing = !playing;
       break;
