@@ -25,10 +25,10 @@ let translateY = canvas.height/2;
 function toggleFullscreen() {
   if (!fullscreen) {
     document.getElementById("body").requestFullscreen();
-    document.getElementById("fullscreen").style.backgroundImage = "url(../textures/exitFullscreen.png)";
+    document.getElementById("fullscreen").style.backgroundImage = "url(./textures/exitFullscreen.png)";
   } else {
     document.exitFullscreen();
-    document.getElementById("fullscreen").style.backgroundImage = "url(../textures/enterFullscreen.png)";
+    document.getElementById("fullscreen").style.backgroundImage = "url(./textures/enterFullscreen.png)";
   }
   fullscreen = !fullscreen;
 }
