@@ -190,9 +190,9 @@ canvas.addEventListener("wheel", e => {
 document.getElementById("fullscreen").addEventListener("click", toggleFullscreen);
 document.getElementById("play").addEventListener("click", () => {
   if (playing) {
-    document.getElementById("play").style.backgroundImage = "url(../textures/play.png)";
+    document.getElementById("play").style.backgroundImage = "url(./textures/play.png)";
   } else {
-    document.getElementById("play").style.backgroundImage = "url(../textures/pause.png)";
+    document.getElementById("play").style.backgroundImage = "url(./textures/pause.png)";
   }
   playing = !playing
 })
