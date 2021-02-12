@@ -1,5 +1,6 @@
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
+const planetOptions = document.getElementById("planetOptions");
 ctx.fillStyle = "white";
 ctx.strokeStyle = "white";
 
@@ -10,7 +11,7 @@ let playing = false;
 let fullscreen = false;
 let mousedown = false;
 let prevX, prevY;
-let selection = 0;
+let selection;
 
 canvas.width = canvas.offsetWidth*scale;
 canvas.height = canvas.offsetHeight*scale;
@@ -19,53 +20,27 @@ let translateX = canvas.width/2;
 let translateY = canvas.height/2;
 
 
-function setup() {
-  ctx.translate(translateX, translateY);
-  planets[0] = new Sun(0, 0, 200);
-  planets[1] = new Planet(1000, 0, 100, 0.002, planets[0]);
-  planets[2] = new Planet(300, 0, 25, 0.01, planets[1]);
-  planets[3] = new Planet(500, 0, 25, 0.02, planets[1]);
-  planets[4] = new Planet(100, 0, 10, 0.03, planets[2]);
-  planets[5] = new Planet(75, 0, 10, 0.1, planets[3]);
 
-  planetOptions = new Menu(10, 10, 400, 700, 40);
-
-}
-
-
-function draw() {
-  ctx.clearRect(-translateX, -translateY, canvas.width, canvas.height);
-
-  for (var i = 0; i < planets.length; i++) {
-    if (playing) {
-      planets[i].update();
-    }
-    planets[i].draw();
-  }
-
-  if (selection != null) {
-    planetOptions.show();
-  }
-
-  requestAnimationFrame(draw);
-}
-
+//toggles fullscreen
 function toggleFullscreen() {
   if (!fullscreen) {
-    canvas.requestFullscreen();
+    document.getElementById("body").requestFullscreen();
+    document.getElementById("fullscreen").style.backgroundImage = "url(../textures/exitFullscreen.png)";
   } else {
     document.exitFullscreen();
+    document.getElementById("fullscreen").style.backgroundImage = "url(../textures/enterFullscreen.png)";
   }
   fullscreen = !fullscreen;
 }
 
+//changes the canvas pixel count to match its real pixel count (times the scale) also translates back to the center
 function canvasRefresh() {
   canvas.width = canvas.offsetWidth*scale;
   canvas.height = canvas.offsetHeight*scale;
   ctx.translate(translateX, translateY);
 }
 
-
+//returns a random float between min and max (if only one arg: 0 and max)
 function randomFloat(min, max) {
   if (!max) {
     max = min;
@@ -78,7 +53,7 @@ function randomFloat(min, max) {
 }
 
 
-
+//adds drag functionality (takes a mouseEvent)
 function drag(e) {
   if (mousedown) {
     let dx = prevX - (e.offsetX * scale);
@@ -86,6 +61,7 @@ function drag(e) {
 
     ctx.translate(-dx, -dy)
 
+    //keeps track of the total translation X and Y
     translateX += -dx;
     translateY += -dy;
 
@@ -94,78 +70,94 @@ function drag(e) {
   }
 }
 
-setup();
-draw();
-
-canvas.addEventListener("click", e => {
+//checks if mouse position is over one of the planets (takes a mouse event) => returns index of the planet the mouse us over
+function mouseOnPlanet(e) {
   let mouseX = e.offsetX * scale - translateX;
   let mouseY = e.offsetY * scale - translateY;
   let planetX, planetY, planetSize;
-
-  for (var i = 0; i < planets.length; i++) {
-    planets[i].strokeColor = "white";
-    planets[i].fillColor = "white";
-  }
 
   for (var i = 0; i < planets.length; i++) {
     planetX = planets[i].x;
     planetY = planets[i].y;
     planetSize = planets[i].size;
 
-    if (mouseX > planetX - planetSize && mouseX < planetX + planetSize && mouseY > planetY - planetSize && mouseY < planetY + planetSize) {
-      planets[i].fillColor = "grey";
-      selection = i;
-      return;
+    if (mouseX > planetX - planetSize && mouseX < planetX + planetSize && mouseY > planetY - planetSize && mouseY < planetY + planetSize && planets[i].fillColor != "grey") {
+      return i;
     }
   }
-  selection = null;
-  return;
+  return undefined;
+}
+
+//activates toggleFullscreen on double click on canvas
+canvas.addEventListener("dblclick", toggleFullscreen);
+//refreshes the canvas on fullscreenchange
+document.addEventListener("fullscreenchange", canvasRefresh);
+//refreshes the canvas on window resize
+window.addEventListener("resize", canvasRefresh);
+
+//checks if mouse position is inside of a planet => if so it makes it planet another color
+canvas.addEventListener("click", e => {
+  let index = mouseOnPlanet(e);
+
+  //selected planet gets reset
+  for (var i = 0; i < planets.length; i++) {
+    if (planets[i].selected) {
+      planets[i].fillColor = "white";
+      planets[i].selected = false;
+    }
+  }
+
+  //new planet gets selected
+  if (index + 1) {
+    planets[index].fillColor = "grey";
+    planets[index].selected = true;
+  }
+  selection = index;
 })
 
-canvas.addEventListener("mousemove", e => {
+//Activates drag function and checks if mouse position is inside of a planet => if so it makes it planet another color
+document.addEventListener("mousemove", e => {
    drag(e);
-
-   let mouseX = e.offsetX * scale - translateX;
-   let mouseY = e.offsetY * scale - translateY;
-   let planetX, planetY, planetSize;
+   let index = mouseOnPlanet(e);
 
    for (var i = 0; i < planets.length; i++) {
-     planetX = planets[i].x;
-     planetY = planets[i].y;
-     planetSize = planets[i].size;
-
-     if (mouseX > planetX - planetSize && mouseX < planetX + planetSize && mouseY > planetY - planetSize && mouseY < planetY + planetSize && planets[i].fillColor != "grey") {
-       planets[i].fillColor = "lightgrey";
-
-     } else if (planets[i].fillColor != "grey") {
+     if (!planets[i].selected) {
        planets[i].fillColor = "white";
      }
    }
 
+   if (index + 1) {
+     planets[index].fillColor = "lightgrey";
+   }
+
+
  });
 
-
-canvas.addEventListener("mousedown", e => {
+//if mouse 3 is pressed prevX and prevY are set to initiate draging
+document.addEventListener("mousedown", e => {
   if (e.button == 1) {
     mousedown = true;
     prevX = e.offsetX * scale;
     prevY = e.offsetY * scale;
-    document.getElementById("canvas").style.cursor = "grab";
+    body.style.cursor = "grab";
   }
 });
 
+//sets mousedown variable to false and resets the cursor style
 document.addEventListener("mouseup", () => {
   mousedown = false;
-  document.getElementById("canvas").style.cursor = "default";
+  body.style.cursor = "default";
 });
 
-canvas.addEventListener("dblclick", toggleFullscreen)
-document.addEventListener("fullscreenchange", canvasRefresh);
-window.addEventListener("resize", canvasRefresh);
-
-document.addEventListener("keydown", e => {
+//toggles animation and orbits
+document.addEventListener("keyup", e => {
   switch (e.key) {
     case " ":
+      if (playing) {
+        document.getElementById("play").style.backgroundImage = "url(../textures/play.png)";
+      } else {
+        document.getElementById("play").style.backgroundImage = "url(../textures/pause.png)";
+      }
       playing = !playing;
       break;
     case "o":
@@ -176,17 +168,32 @@ document.addEventListener("keydown", e => {
   }
 });
 
+//adds custom zoom functionality
 canvas.addEventListener("wheel", e => {
-  if (e.deltaY < 0 && scale > 1.2) {
+  //checks scroll direction
+  if (e.deltaY < 0 && canvas.width > canvas.offsetWidth && !e.ctrlKey) {
     scale -= 0.2;
     canvasRefresh();
-  } else if (e.deltaY > 0 && scale <= 5) {
+  } else if (e.deltaY > 0 && canvas.width < canvas.offsetWidth*4 && !e.ctrlKey) {
     scale += 0.2;
     canvasRefresh();
   }
 
+  //fixes problem with draging whilst zooming by resetting prevX and prevY
   if (mousedown) {
     prevX = e.offsetX * scale;
     prevY = e.offsetY * scale;
   }
 });
+
+//toolbar buttons
+document.getElementById("fullscreen").addEventListener("click", toggleFullscreen);
+document.getElementById("play").addEventListener("click", () => {
+  if (playing) {
+    document.getElementById("play").style.backgroundImage = "url(../textures/play.png)";
+  } else {
+    document.getElementById("play").style.backgroundImage = "url(../textures/pause.png)";
+  }
+  playing = !playing
+})
+document.getElementById("orbits").addEventListener("click", () => orbits = !orbits);

@@ -1,21 +1,63 @@
-#mainContainer {
-  width: 99vw;
-  height: 98vh;
-  display: grid;
-  place-items: center;
+* {
   margin: 0;
   padding: 0;
 }
 
 #canvas {
+  position: absolute;
   background-color: black;
   outline: solid black;
-  width: 95vw;
-  height: 95vh;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
 }
 
+#toolbar {
+  display: grid;
+  top: 10px;
+  left: calc(100% - 60px);
+  width: 50px;
+  height: calc(100% - 20px);
+
+  grid-template-rows: repeat(20, 50px);
+  grid-row-gap: 2px;
+}
+
+#fullscreen {
+  background-image: url(../textures/enterFullscreen.png);
+}
+
+#play {
+  background-image: url(../textures/play.png);
+}
+
+#orbits {
+  background-image: url(../textures/orbits.png);
+}
+
+#planetOptions {
+  display: none;
+  top: 10px;
+  left: 10px;
+  width: 22%;
+  height: 75%;
+
+
+  grid-template-columns: 1fr 50px;
+  grid-template-rows: repeat(7, 50px);
+}
+
+.menu {
+  position: absolute;
+  background-color: rgba(100, 100, 100, 0.8);
+  border: solid rgb(50, 50, 50) 2px;
+  border-radius: 7px;
+  z-index: 100;
+}
 
 .button {
-  width: 20vmin;
-  height: 20vmin;
+  background-size: 100%;
+  background-repeat: no-repeat;
+  background-color: lightgrey;
+  border-radius: 7px;
 }

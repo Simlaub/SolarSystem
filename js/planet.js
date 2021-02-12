@@ -8,6 +8,7 @@ class Planet {
     this.children = [];
     this.fillColor = "white";
     this.strokeColor = "white";
+    this.selected = "false"
 
     if (this.parent) {
       this.parent.children.push(this)
