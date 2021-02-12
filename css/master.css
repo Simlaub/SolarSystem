@@ -30,19 +30,19 @@ input {
 }
 
 #fullscreen {
-  background-image: url(../textures/enterFullscreen.png);
+  background-image: url(./textures/enterFullscreen.png);
 }
 
 #play {
-  background-image: url(../textures/play.png);
+  background-image: url(./textures/play.png);
 }
 
 #orbits {
-  background-image: url(../textures/orbits.png);
+  background-image: url(./textures/orbits.png);
 }
 
 #move {
-  background-image:  url(../textures/move.png);
+  background-image:  url(./textures/move.png);
 }
 
 #planetOptions {
